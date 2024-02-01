@@ -1,0 +1,38 @@
+[project]
+name = "pretalx-webhook"
+dynamic = ["version"]
+description = "pretalx plugin for Pretalx webhook plugin"
+readme = "README.rst"
+license = {text = "MIT"}
+keywords = ["pretalx"]
+authors = [
+  {name = "Devcon", email = "support@devcon.org"},
+]
+maintainers = [
+  {name = "Devcon", email = "support@devcon.org"},
+]
+
+dependencies = []
+
+[project.urls]
+homepage = "https://github.com/efdevcon/pretalx-webhook-plugin"
+repository = "https://github.com/efdevcon/pretalx-webhook-plugin.git"
+
+[project.entry-points."pretalx.plugin"]
+pretalx_webhook = "pretalx_webhook:PretalxPluginMeta"
+
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools"]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "pretalx_webhook.__version__"}
+
+[tool.setuptools.packages.find]
+include = ["pretalx*"]
+
+[tool.check-manifest]
+ignore = [".*"]

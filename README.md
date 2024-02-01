@@ -1,1 +1,0 @@
-# pretalx-webhook-plugin
