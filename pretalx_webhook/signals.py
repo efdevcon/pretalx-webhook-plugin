@@ -36,8 +36,8 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         }
 
         headers = {'Content-Type': 'application/json'}
-        if webhook_settings.secret_key:
-            headers['X-Webhook-Secret'] = webhook_settings.secret_key
+        if webhook_secret:
+            headers['X-Webhook-Secret'] = webhook_secret
         else:
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
@@ -47,7 +47,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             headers=headers,
         )
         
-        # Log the response (you may want to handle this differently)
+        # Log the response
         if response.status_code == 200:
             logger.info(f"Webhook sent successfully for event {sender.slug}")
         else:
