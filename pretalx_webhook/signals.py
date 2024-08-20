@@ -34,8 +34,8 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         # log the arguments 
         logger.info(f"Prepare the payload..")
         payload = {
-            'event': schedule.event,
-            'version': schedule.version,
+            'sender': sender,
+            'schedule': schedule,
             'user': user,
         }
         logger.error(payload)
