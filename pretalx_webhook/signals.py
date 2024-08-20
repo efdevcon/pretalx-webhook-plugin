@@ -24,21 +24,23 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         if not webhook_endpoint:
             logger.info(f"Webhook endpoint is empty for event {sender.slug}")
             return
+        
+        logger.error(f"Signal arguments..")
+        logger.error(str(sender))
+        logger.error(str(schedule))
+        logger.error(str(user))
+        logger.error(str(kwargs))
 
         # log the arguments 
-        logger.error(f"Prepare the payload..")
-        logger.error(sender)
-        logger.error(schedule)
-        logger.error(user)
-        logger.error(kwargs)
-
-        # Prepare the payload
+        logger.info(f"Prepare the payload..")
         payload = {
-            'event': sender.slug,
-            'schedule_version': schedule.version,
-            'user': user.id,
-            'args': kwargs,
+            'event': schedule.event,
+            'version': schedule.version,
+            'user': user,
         }
+        logger.error(payload)
+        logger.error(str(payload))
+        logger.error(json.dumps(payload))
 
         headers = {'Content-Type': 'application/json'}
         if webhook_secret:
