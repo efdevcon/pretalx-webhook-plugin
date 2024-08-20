@@ -25,13 +25,14 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.info(f"Webhook endpoint is empty for event {sender.slug}")
             return
 
+        # log the arguments 
+        logger.info(f"Prepare the payload from {sender} for {schedule} with arguments {kwargs}")
+
         # Prepare the payload
         payload = {
-            # 'event': sender.slug,
-            # 'schedule_version': schedule.version,
-            'sender': sender,
-            'schedule': schedule,
-            'user': user,
+            'event': sender.slug,
+            'schedule_version': schedule.version,
+            'user': user.id,
             'args': kwargs,
         }
 
