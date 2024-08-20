@@ -26,7 +26,11 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             return
 
         # log the arguments 
-        logger.info(f"Prepare the payload from {sender} for {schedule} with arguments {kwargs}")
+        logger.info(f"Prepare the payload..")
+        logger.info(sender)
+        logger.info(schedule)
+        logger.info(user)
+        logger.info(kwargs)
 
         # Prepare the payload
         payload = {
