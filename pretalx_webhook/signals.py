@@ -28,7 +28,11 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             'event': sender.slug,
             'user': str(user),
             'schedule': schedule.version,
-            'changes': str(schedule.changes),
+            'changes': {
+                'new_talks': [talk['submission']['code'] for talk in schedule.changes['new_talks']],
+                'canceled_talks': [talk['submission']['code'] for talk in schedule.changes['canceled_talks']],
+                'moved_talks': [talk['submission']['code'] for talk in schedule.changes['moved_talks']],
+            },
         }
 
         headers = {'Content-Type': 'application/json'}
