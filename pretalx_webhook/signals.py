@@ -7,6 +7,10 @@ from pretalx.schedule.signals import schedule_release
 
 logger = logging.getLogger(__name__)
 
+def get_submission_code(data):
+    submission = data.get('submission')
+    return submission.code if submission and hasattr(submission, 'code') else None
+
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
     try:
@@ -29,9 +33,9 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             'user': str(user),
             'schedule': schedule.version,
             'changes': {
-                'new_talks': [talk.submission.code for talk in schedule.changes.get('new_talks', [])],
-                'canceled_talks': [talk.submission.code for talk in schedule.changes.get('canceled_talks', [])],
-                'moved_talks': [talk.submission.code for talk in schedule.changes.get('moved_talks', [])],
+                'new_talks': [get_submission_code(talk) for talk in schedule.changes.get('new_talks', [])],
+                'canceled_talks': [get_submission_code(talk) for talk in schedule.changes.get('canceled_talks', [])],
+                'moved_talks': [get_submission_code(talk) for talk in schedule.changes.get('moved_talks', [])],
             },
         }
 
