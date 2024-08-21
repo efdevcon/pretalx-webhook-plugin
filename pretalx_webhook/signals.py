@@ -38,10 +38,12 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         logger.error("Logging keys of all arguments:")
         log_object_keys(sender)
         log_object_keys(schedule)
+        log_object_keys(schedule.changes)
+        logger.error(f"Schedule changes: {schedule.changes}")
         log_object_keys(user)
 
         payload = {
-            'sender': str(sender),
+            'event': sender.slug,
             'schedule': str(schedule),
             'user': str(user),
             'schedule-serialized': ScheduleSerializer(schedule).data,
