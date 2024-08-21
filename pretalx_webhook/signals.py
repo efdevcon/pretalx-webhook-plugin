@@ -4,6 +4,7 @@ import logging
 from django.dispatch import receiver
 from django.urls import reverse
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from pretalx.orga.signals import nav_event_settings
 from pretalx.schedule.signals import schedule_release
 
