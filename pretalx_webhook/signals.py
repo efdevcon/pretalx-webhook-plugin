@@ -2,21 +2,10 @@ import json
 import requests
 import logging
 from django.dispatch import receiver
-from django.urls import reverse
 from django.conf import settings
-from pretalx.orga.signals import nav_event_settings
 from pretalx.schedule.signals import schedule_release
-from pretalx.api.serializers.submission import ScheduleSerializer
 
 logger = logging.getLogger(__name__)
-
-def log_object_keys(obj):
-    if isinstance(obj, dict):
-        keys = obj.keys()
-    else:
-        keys = vars(obj).keys()
-    
-    logger.error(f"Keys of {type(obj).__name__}: {list(keys)}")
 
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
@@ -34,23 +23,13 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.info(f"Webhook endpoint is empty for event {sender.slug}")
             return
         
-        # log the arguments 
-        logger.error("Logging keys of all arguments:")
-        log_object_keys(sender)
-        log_object_keys(schedule)
-        log_object_keys(schedule.changes)
         logger.error(f"Schedule changes: {schedule.changes}")
-        log_object_keys(user)
-        logger.error(ScheduleSerializer(schedule).data)
-
         payload = {
             'event': sender.slug,
-            'schedule': str(schedule),
-            'user': str(user)
+            'user': str(user),
+            'schedule': schedule.version,
+            'changes': str(schedule.changes),
         }
-
-        logger.error(f"Prepare payload..")
-        logger.error(payload)
 
         headers = {'Content-Type': 'application/json'}
         if webhook_secret:
@@ -58,8 +37,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         else:
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
-
-        logger.error(f"Send JSON request to {webhook_endpoint}")
+        logger.error(f"Send JSON request to {webhook_endpoint} with payload: {payload}")
         response = requests.post(webhook_endpoint,
             json=json.dumps(payload),
             headers=headers,
