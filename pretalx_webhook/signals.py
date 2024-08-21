@@ -9,6 +9,23 @@ from pretalx.schedule.signals import schedule_release
 
 logger = logging.getLogger(__name__)
 
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, '__dict__'):
+            return {key: self.default(value) for key, value in vars(obj).items() 
+                    if not key.startswith('_') and not callable(value)}
+        elif hasattr(obj, 'isoformat'):
+            return obj.isoformat()
+        return super().default(obj)
+
+def log_object_attributes(obj, logger):
+    try:
+        attributes = json.dumps(obj, cls=CustomJSONEncoder, indent=2)
+        logger.error(f"Object attributes for {type(obj).__name__}:\n{attributes}")
+    except Exception as e:
+        logger.error(f"Error logging attributes for {type(obj).__name__}: {str(e)}")
+
+
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
     try:
@@ -25,22 +42,21 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.info(f"Webhook endpoint is empty for event {sender.slug}")
             return
         
-        logger.error(f"Signal arguments..")
-        logger.error(str(sender))
-        logger.error(str(schedule))
-        logger.error(str(user))
-        logger.error(str(kwargs))
-
         # log the arguments 
-        logger.info(f"Prepare the payload..")
+        logger.info(f"Log all arguments..")
+        log_object_attributes(sender, logger)
+        log_object_attributes(schedule, logger)
+        log_object_attributes(user, logger)
+        log_object_attributes(kwargs, logger)
+
         payload = {
-            'sender': sender,
-            'schedule': schedule,
-            'user': user,
+            'sender': str(sender),
+            'schedule': str(schedule),
+            'user': str(user),
         }
+
+        logger.error(f"Prepare payload..")
         logger.error(payload)
-        logger.error(str(payload))
-        logger.error(json.dumps(payload))
 
         headers = {'Content-Type': 'application/json'}
         if webhook_secret:
@@ -48,13 +64,13 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         else:
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
-        # Send the POST request to the webhook endpoint
+
+        logger.error(f"Send JSON request..")
         response = requests.post(webhook_endpoint,
             json=json.dumps(payload),
             headers=headers,
         )
         
-        # Log the response
         if response.status_code == 200:
             logger.info(f"Webhook sent successfully for event {sender.slug}")
         else:
