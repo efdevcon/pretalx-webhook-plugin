@@ -4,28 +4,18 @@ import logging
 from django.dispatch import receiver
 from django.urls import reverse
 from django.conf import settings
-from django.core.serializers.json import DjangoJSONEncoder
 from pretalx.orga.signals import nav_event_settings
 from pretalx.schedule.signals import schedule_release
 
 logger = logging.getLogger(__name__)
 
-class CustomJSONEncoder(DjangoJSONEncoder):
-    def default(self, obj):
-        if hasattr(obj, '__dict__'):
-            return {key: self.default(value) for key, value in vars(obj).items() 
-                    if not key.startswith('_') and not callable(value)}
-        elif hasattr(obj, 'isoformat'):
-            return obj.isoformat()
-        return super().default(obj)
-
-def log_object_attributes(obj, logger):
-    try:
-        attributes = json.dumps(obj, cls=CustomJSONEncoder, indent=2)
-        logger.error(f"Object attributes for {type(obj).__name__}:\n{attributes}")
-    except Exception as e:
-        logger.error(f"Error logging attributes for {type(obj).__name__}: {str(e)}")
-
+def log_object_keys(obj):
+    if isinstance(obj, dict):
+        keys = obj.keys()
+    else:
+        keys = vars(obj).keys()
+    
+    logger.error(f"Keys of {type(obj).__name__}: {list(keys)}")
 
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
@@ -44,11 +34,10 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             return
         
         # log the arguments 
-        logger.info(f"Log all arguments..")
-        log_object_attributes(sender, logger)
-        log_object_attributes(schedule, logger)
-        log_object_attributes(user, logger)
-        log_object_attributes(kwargs, logger)
+        logger.error("Logging keys of all arguments:")
+        log_object_keys(sender, logger)
+        log_object_keys(schedule, logger)
+        log_object_keys(user, logger)
 
         payload = {
             'sender': str(sender),
