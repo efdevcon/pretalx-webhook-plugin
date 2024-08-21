@@ -10,20 +10,19 @@ logger = logging.getLogger(__name__)
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
     try:
-        # Get the webhook settings for this event
         webhook_settings = settings.PLUGIN_SETTINGS["pretalx_webhook"]
         if not webhook_settings:
-            logger.info(f"Webhook settings are empty or invalid for event {sender.slug}")
+            logger.error(f"Webhook settings are empty or invalid for event {sender.slug}")
             return
 
         webhook_endpoint = webhook_settings["endpoint"]
         webhook_secret = webhook_settings["secret"]
 
         if not webhook_endpoint:
-            logger.info(f"Webhook endpoint is empty for event {sender.slug}")
+            logger.error(f"Webhook endpoint is empty for event {sender.slug}")
             return
         
-        logger.error(f"Schedule changes: {schedule.changes}")
+        logger.info(f"Preparing payload for {sender.slug} with schedule {schedule.version}")
         payload = {
             'event': sender.slug,
             'user': str(user),
@@ -41,7 +40,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         else:
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
-        logger.error(f"Send JSON request to {webhook_endpoint} with payload: {payload}")
+        logger.info(f"POST JSON request to {webhook_endpoint} with payload: {payload}")
         response = requests.post(webhook_endpoint,
             json=json.dumps(payload),
             headers=headers,
