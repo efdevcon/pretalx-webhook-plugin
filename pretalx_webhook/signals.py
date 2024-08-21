@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.conf import settings
 from pretalx.orga.signals import nav_event_settings
 from pretalx.schedule.signals import schedule_release
+from pretalx.api.serializers.submission import ScheduleSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             'sender': str(sender),
             'schedule': str(schedule),
             'user': str(user),
+            'schedule-serialized': ScheduleSerializer(schedule).data,
         }
 
         logger.error(f"Prepare payload..")
