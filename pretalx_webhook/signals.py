@@ -36,9 +36,9 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         
         # log the arguments 
         logger.error("Logging keys of all arguments:")
-        log_object_keys(sender, logger)
-        log_object_keys(schedule, logger)
-        log_object_keys(user, logger)
+        log_object_keys(sender)
+        log_object_keys(schedule)
+        log_object_keys(user)
 
         payload = {
             'sender': str(sender),
