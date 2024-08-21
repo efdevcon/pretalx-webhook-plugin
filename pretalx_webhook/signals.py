@@ -55,7 +55,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
 
-        logger.error(f"Send JSON request..")
+        logger.error(f"Send JSON request to {webhook_endpoint}")
         response = requests.post(webhook_endpoint,
             json=json.dumps(payload),
             headers=headers,
