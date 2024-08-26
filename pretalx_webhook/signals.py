@@ -28,7 +28,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             'user': str(user),
             'schedule': schedule.version,
             'changes': {
-                'new_talks': [talk['submission'].code for talk in schedule.changes.get('new_talks', [])],
+                'new_talks': [talk.code for talk in schedule.changes.get('new_talks', [])],
                 'canceled_talks': [talk['submission'].code for talk in schedule.changes.get('canceled_talks', [])],
                 'moved_talks': [talk['submission'].code for talk in schedule.changes.get('moved_talks', [])],
             },
