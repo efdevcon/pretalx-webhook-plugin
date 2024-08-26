@@ -42,7 +42,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
 
         logger.info(f"POST JSON request to {webhook_endpoint} with payload: {payload}")
         response = requests.post(webhook_endpoint,
-            json=json.dumps(payload),
+            json=payload,
             headers=headers,
         )
         
