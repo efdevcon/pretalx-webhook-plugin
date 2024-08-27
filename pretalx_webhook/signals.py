@@ -46,7 +46,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             headers=headers,
         )
         
-        if response.status_code == 200:
+        if response.status_code in [200, 201, 204]:
             logger.info(f"Webhook sent successfully for event {sender.slug}")
         else:
             logger.error(f"Webhook failed for event {sender.slug}. Status code: {response.status_code}")
