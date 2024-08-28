@@ -13,7 +13,9 @@ def on_schedule_release(sender, schedule, user, **kwargs):
     try:
         webhook_settings = settings.PLUGIN_SETTINGS["pretalx_webhook"]
         if not webhook_settings:
-            logger.error(f"Webhook settings are empty or invalid for event {sender.slug}")
+            logger.error(
+                f"Webhook settings are empty or invalid for event {sender.slug}"
+            )
             return
 
         webhook_endpoint = webhook_settings["endpoint"]
@@ -23,21 +25,32 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.error(f"Webhook endpoint is empty for event {sender.slug}")
             return
 
-        logger.info(f"Preparing payload for {sender.slug} with schedule {schedule.version}")
+        logger.info(
+            f"Preparing payload for {sender.slug} with schedule {schedule.version}"
+        )
         payload = {
-            'event': sender.slug,
-            'user': str(user),
-            'schedule': schedule.version,
-            'changes': {
-                'new_talks': [talk.submission.code for talk in schedule.changes.get('new_talks', [])],
-                'canceled_talks': [talk.submission.code for talk in schedule.changes.get('canceled_talks', [])],
-                'moved_talks': [talk['submission'].code for talk in schedule.changes.get('moved_talks', [])],
+            "event": sender.slug,
+            "user": str(user),
+            "schedule": schedule.version,
+            "changes": {
+                "new_talks": [
+                    talk.submission.code
+                    for talk in schedule.changes.get("new_talks", [])
+                ],
+                "canceled_talks": [
+                    talk.submission.code
+                    for talk in schedule.changes.get("canceled_talks", [])
+                ],
+                "moved_talks": [
+                    talk["submission"].code
+                    for talk in schedule.changes.get("moved_talks", [])
+                ],
             },
         }
 
-        headers = {'Content-Type': 'application/json'}
+        headers = {"Content-Type": "application/json"}
         if webhook_secret:
-            headers['X-Webhook-Secret'] = webhook_secret
+            headers["X-Webhook-Secret"] = webhook_secret
         else:
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
@@ -47,7 +60,9 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         if response.status_code in [200, 201, 204]:
             logger.info(f"Webhook sent successfully for event {sender.slug}")
         else:
-            logger.error(f"Webhook failed for event {sender.slug}. Status code: {response.status_code}")
+            logger.error(
+                f"Webhook failed for event {sender.slug}. Status code: {response.status_code}"
+            )
 
     except Exception as e:
         logger.error(f"Error sending webhook for event {sender.slug}: {str(e)}")
