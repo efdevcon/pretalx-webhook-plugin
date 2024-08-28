@@ -1,11 +1,12 @@
-import json
-import requests
 import logging
-from django.dispatch import receiver
+
+import requests
 from django.conf import settings
+from django.dispatch import receiver
 from pretalx.schedule.signals import schedule_release
 
 logger = logging.getLogger(__name__)
+
 
 @receiver(schedule_release, dispatch_uid="pretalx_webhook_schedule_release")
 def on_schedule_release(sender, schedule, user, **kwargs):
@@ -21,7 +22,7 @@ def on_schedule_release(sender, schedule, user, **kwargs):
         if not webhook_endpoint:
             logger.error(f"Webhook endpoint is empty for event {sender.slug}")
             return
-        
+
         logger.info(f"Preparing payload for {sender.slug} with schedule {schedule.version}")
         payload = {
             'event': sender.slug,
@@ -41,11 +42,8 @@ def on_schedule_release(sender, schedule, user, **kwargs):
             logger.warning(f"Webhook secret is empty for event {sender.slug}")
 
         logger.info(f"POST JSON request to {webhook_endpoint} with payload: {payload}")
-        response = requests.post(webhook_endpoint,
-            json=payload,
-            headers=headers,
-        )
-        
+        response = requests.post(webhook_endpoint, json=payload, headers=headers)
+
         if response.status_code in [200, 201, 204]:
             logger.info(f"Webhook sent successfully for event {sender.slug}")
         else:
